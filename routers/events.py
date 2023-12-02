@@ -51,21 +51,32 @@ async def update_event(id: int, new_data:EventUpdate,session=Depends(get_session
     )
 
 @event_router.delete("/{id}")
-async def delete_event(id: int):
-    for event in events:
-        if event.id == id:
-            events.remove(event)
-            return {
-                "message":"Event Deleted Successfully" 
-            }
+async def delete_event(id:int,session=Depends(get_session)):
+    event = session.get(Event,id)
+    if event:
+        session.delete(event)
+        session.commit()
+        return {
+            "message" : "Event Delete successfully"
+        }
     raise HTTPException (
         status_code=status.HTTP_404_NOT_FOUND,
-        detail="Event Id not exist!"
+        detail="Event Id does not exist!"
     )
 
 @event_router.delete("/")
-async def delete_all_events():
-    events.clear()
-    return {
-        "message": "Event deleted successfully"
-    }
+async def delete_all_events(session=Depends(get_session)):
+    statement = delete(Event)
+    session.execute(statement)
+    session.commit()
+
+    result = session.execute(select(Event))
+    all_row = result.fetchall()
+    if len(all_row) == 0 : 
+        return {
+            "message": "Event deleted successfully"
+        }
+    raise HTTPException (
+        status_code=status.HTTP_409_CONFLICT,
+        detail="Event Delete not successfully"
+    )

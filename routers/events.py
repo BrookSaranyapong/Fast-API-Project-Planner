@@ -1,11 +1,12 @@
 from fastapi import APIRouter, HTTPException, status, Body, Depends
 from models.events import Event, EventUpdate
 from typing import List
+from auth.authenticate import authenticate
 
 from sqlmodel import select, delete
 from database.connection import get_session
 
-event_router = APIRouter(tags=["Events"])
+event_router = APIRouter(tags=["Events"],dependencies=[Depends(authenticate)]) #Midleware Router Level 
 
 events = []
 

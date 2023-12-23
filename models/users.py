@@ -26,6 +26,6 @@ class UserSignIn(SQLModel):
             }
         }
 
-# class UserList(BaseModel):
-#     users : Dict[User.email[User]]
-
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str
